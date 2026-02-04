@@ -39,7 +39,40 @@ Traditional email for automation is broken:
 - **AI agent identity**: Give agents their own email addresses
 - **Credit farming**: Extract API keys from free trial services
 
-## Setup
+## Quick Start (For Agents)
+
+**If you're an OpenClaw agent:** Read [`AGENT_INSTRUCTIONS.md`](AGENT_INSTRUCTIONS.md) for step-by-step setup and usage.
+
+**If you're a human setting this up for your agent:**
+
+```bash
+# 1. Clone to your OpenClaw workspace
+cd ~/.openclaw/workspace
+git clone https://github.com/tanishq-atm/clawfarm.git
+cd clawfarm
+
+# 2. Get API keys
+# - AgentMail: https://agentmail.to
+# - Browser Use: https://browser-use.com
+
+# 3. Configure .env
+cp .env.example .env
+# Edit .env and add your API keys
+
+# 4. Tell your agent:
+```
+
+> *"Go to the clawfarm directory and run the Leonardo automation. Follow the AGENT_INSTRUCTIONS.md file. Let me know when you have a working API key."*
+
+Your agent will:
+- Set up the virtual environment
+- Install dependencies
+- Run the automation
+- Report back with the Leonardo API key
+
+---
+
+## Manual Setup
 
 ### 1. Install Dependencies
 
@@ -148,16 +181,23 @@ Browser Use supports multiple AI models. We use `browser-use-2.0` for best resul
 
 ```
 leonardo-automation/
-├── leonardo_automation.py    # Main script (222 lines)
+├── leonardo_automation.py    # Main automation script (255 lines)
 ├── agentmail_utils.py        # AgentMail SDK wrapper (254 lines)
-├── browseruse_utils.py       # Browser Use client (264 lines)
-├── requirements.txt          # Dependencies (agentmail, httpx)
+├── browseruse_utils.py       # Browser Use API client (264 lines)
+├── requirements.txt          # Python dependencies (3 packages)
 ├── .env.example             # API key template
-├── .gitignore               # Ignore secrets
-└── README.md                # This file
+├── .gitignore               # Git ignore rules
+├── README.md                # This file (for humans)
+├── AGENT_INSTRUCTIONS.md    # Setup guide (for agents)
+└── EXAMPLE_CONVERSATION.md  # Example agent interactions
 ```
 
-**Total: 740 lines of code**
+**Total: 1,100+ lines of documentation + code**
+
+### For Agents
+
+- **Read first:** `AGENT_INSTRUCTIONS.md` - complete setup and usage guide
+- **See examples:** `EXAMPLE_CONVERSATION.md` - how humans and agents interact with this repo
 
 ## Output
 
