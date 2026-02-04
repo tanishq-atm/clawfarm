@@ -201,6 +201,37 @@ After email verification is complete, navigate to the API settings or developer 
         
         print(f"✅ Phase 3 complete: API key extracted")
         print(f"🔑 API Key: {api_key}")
+        
+        # Phase 4: Test the API key by generating an image
+        print(f"\n🎨 Phase 4: Testing API key with image generation\n")
+        
+        import httpx
+        try:
+            response = httpx.post(
+                'https://cloud.leonardo.ai/api/rest/v1/generations',
+                headers={'Authorization': f'Bearer {api_key}'},
+                json={
+                    'prompt': 'A cute robot mascot holding an envelope, digital art, vibrant colors',
+                    'modelId': 'b24e16ff-06e3-43eb-8d33-4416c2d75876',  # Leonardo Kino XL
+                    'width': 512,
+                    'height': 512,
+                    'num_images': 1
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                generation_id = result.get('sdGenerationJob', {}).get('generationId')
+                state["image_generation_id"] = generation_id
+                print(f"✅ Image generation started!")
+                print(f"   Generation ID: {generation_id}")
+                print(f"   Cost: {result.get('sdGenerationJob', {}).get('cost', {}).get('amount', 'N/A')} USD")
+            else:
+                print(f"⚠️  Image generation failed: {response.status_code}")
+                print(f"   Response: {response.text[:200]}")
+        except Exception as e:
+            print(f"⚠️  Image generation error: {e}")
     
     # Save state
     save_state(state)

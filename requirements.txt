@@ -1,10 +1,8 @@
-# Core dependencies
+# AgentMail SDK for programmatic email
 agentmail>=0.1.0
+
+# HTTP client for Browser Use API and Leonardo API
 httpx>=0.27.0
+
+# Environment variable management
 python-dotenv>=1.0.0
-
-# Webhook server
-flask>=3.0.0
-
-# CDP browser control
-playwright>=1.40.0
