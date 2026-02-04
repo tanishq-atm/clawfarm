@@ -1,7 +1,32 @@
+# Environment and secrets
 .env
+*.key
 *.log
-node_modules/
+
+# Credentials and state files
+*_credentials.json
+*_state.json
+leonardo_*.json
+verification_*.json
+full_message.json
+
+# Python
 venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node (if used)
+node_modules/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
