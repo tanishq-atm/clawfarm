@@ -14,6 +14,8 @@
 
 **Result:** Working Leonardo.ai account with ~3,500 free API tokens in ~5-10 minutes.
 
+**Success Rate:** ~30-50% (Cloudflare CAPTCHA blocks some attempts - this is the reality of automated signups).
+
 ## Why This Approach?
 
 **vs. Creating New Task Each Phase:**
