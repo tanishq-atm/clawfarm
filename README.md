@@ -1,59 +1,60 @@
 # Leonardo.ai Automation
 
-**Hybrid automation** combining AgentMail webhooks + Browser Use + CDP browser control for bulletproof service signup automation.
+**Session-based automation** using AgentMail + Browser Use session continuation for reliable service signup automation.
 
 ## What This Does
 
-**v2 Architecture (Webhook + CDP Hybrid):**
+**v3 Architecture (Session Continuation):**
 1. Creates disposable email inbox via AgentMail API
-2. Uses Browser Use cloud browser to bypass bot detection during signup
-3. **Receives verification email instantly via webhook** (no polling)
-4. **Takes over browser session via Chrome DevTools Protocol (CDP)**
-5. AI agent fills verification code and navigates to API settings
-6. Extracts API key programmatically
+2. Creates Browser Use **session** (not just a task)
+3. Task 1 in session: AI signs up for Leonardo.ai, stops at verification
+4. Polls email for verification code (< 30 seconds)
+5. Task 2 in **same session**: AI enters code, navigates to API settings, extracts key
+6. Browser stays open between tasks - maintains login state
 
 **Result:** Working Leonardo.ai account with ~3,500 free API tokens in ~5-10 minutes.
 
 ## Why This Approach?
 
-**vs. Full Browser Use Automation:**
-- ❌ Browser Use can fail on complex flows (as seen in v1)
-- ✅ Hybrid: Browser Use bypasses bot detection, CDP handles precision tasks
+**vs. Creating New Task Each Phase:**
+- ❌ New task = new browser = lost login state
+- ✅ Session continuation = same browser = stays logged in
 
-**vs. Polling:**
-- ❌ Polling is slow (15s intervals) and inefficient
-- ✅ Webhooks are instant and production-ready
+**vs. One Giant Task:**
+- ❌ Single task can't wait for external input (email)
+- ✅ Two tasks in one session = pause for email, continue seamlessly
 
 **vs. Manual:**
-- ❌ Manual verification requires human intervention
-- ✅ CDP lets AI agent take control for verification + extraction
+- ❌ Manual verification requires human intervention  
+- ✅ AI agent handles verification automatically in same browser
 
 ## Architecture
 
 ```
 ┌─────────────┐
 │ AgentMail   │  1. Create inbox
-│  API        │  2. Register webhook
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Browser Use │  3. Navigate to site
-│  Cloud      │  4. Fill signup form
-└──────┬──────┘  5. Stop at verification
-       │
-       ▼
-┌─────────────┐
-│ Webhook     │  6. Receive email instantly
-│  Server     │  7. Extract code
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ CDP Control │  8. Connect to browser
-│ (Playwright)│  9. Fill verification code
-└─────────────┘ 10. Navigate to API settings
-                11. Extract API key
+│  API        │
+└─────────────┘
+
+┌─────────────────────────────────────────┐
+│ Browser Use Session (ONE browser)       │
+│                                          │
+│  Task 1:                                 │
+│  2. Navigate to leonardo.ai              │
+│  3. Fill signup form                     │
+│  4. Stop at verification screen          │
+│     ⏸️  Browser stays open               │
+│                                          │
+│  [Poll email - outside browser]          │
+│  5. Check AgentMail for verification code│
+│  6. Extract 6-digit code                 │
+│                                          │
+│  Task 2: (SAME browser!)                 │
+│  7. Enter verification code              │
+│  8. Navigate to API settings             │
+│  9. Generate API key                     │
+│ 10. Extract and return key               │
+└─────────────────────────────────────────┘
 ```
 
 ## Prerequisites
@@ -120,10 +121,10 @@ ngrok http 5000
 
 ## Usage
 
-### Run Full Automation (v2)
+### Run Full Automation (v3 - Recommended)
 
 ```bash
-python leonardo_automation_v2.py
+python leonardo_automation_v3.py
 ```
 
 **What happens:**

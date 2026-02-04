@@ -17,13 +17,46 @@ class BrowserUseClient:
         self.base_url = "https://api.browser-use.com/api/v2"
         self.headers = {"X-Browser-Use-API-Key": self.api_key}
     
+    def create_session(self, profile_id: Optional[str] = None) -> Dict:
+        """Create a new browser session"""
+        payload = {}
+        if profile_id:
+            payload["profileId"] = profile_id
+        
+        response = httpx.post(
+            f"{self.base_url}/sessions",
+            headers=self.headers,
+            json=payload,
+            timeout=30
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def stop_session(self, session_id: str) -> Dict:
+        """Stop a browser session"""
+        response = httpx.post(
+            f"{self.base_url}/sessions/{session_id}/stop",
+            headers=self.headers
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def get_session(self, session_id: str) -> Dict:
+        """Get session details"""
+        response = httpx.get(
+            f"{self.base_url}/sessions/{session_id}",
+            headers=self.headers
+        )
+        response.raise_for_status()
+        return response.json()
+    
     def create_task(
         self, 
         task: str, 
         llm: str = "browser-use-llm",
         start_url: Optional[str] = None,
         max_steps: int = 100,
-        profile_id: Optional[str] = None
+        session_id: Optional[str] = None
     ) -> Dict:
         """Create a new browser automation task"""
         payload = {
@@ -34,8 +67,8 @@ class BrowserUseClient:
         
         if start_url:
             payload["startUrl"] = start_url
-        if profile_id:
-            payload["profileId"] = profile_id
+        if session_id:
+            payload["sessionId"] = session_id
         
         response = httpx.post(
             f"{self.base_url}/tasks",

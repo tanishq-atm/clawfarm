@@ -74,25 +74,24 @@ def get_cdp_url_from_browseruse(task_id: str) -> str:
     return cdp_url
 
 def main():
-    print("🚀 Leonardo.ai Automation v2 (Webhook + CDP)\n")
-    print("="*60)
+    print("🚀 Leonardo.ai Automation v2 (Webhook + CDP)\n", flush=True)
+    print("="*60, flush=True)
     
-    # Check webhook server is running
+    # Check webhook server (optional - will fallback to polling)
     webhook_url = os.getenv('WEBHOOK_URL', 'http://localhost:5000')
-    print(f"📡 Webhook URL: {webhook_url}")
+    webhook_available = False
     
     try:
         import httpx
-        health = httpx.get(f"{webhook_url}/health", timeout=5)
-        if health.status_code != 200:
-            print("❌ Webhook server not running!")
-            print("   Start it with: python webhook_server.py")
-            sys.exit(1)
-        print("✅ Webhook server is healthy\n")
+        health = httpx.get(f"{webhook_url}/health", timeout=2)
+        if health.status_code == 200:
+            webhook_available = True
+            print(f"✅ Webhook server available: {webhook_url}\n")
     except:
-        print("❌ Cannot reach webhook server!")
-        print("   Start it with: python webhook_server.py")
-        sys.exit(1)
+        pass
+    
+    if not webhook_available:
+        print(f"⚠️  Webhook server not available - using polling fallback\n", flush=True)
     
     # Initialize state
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
