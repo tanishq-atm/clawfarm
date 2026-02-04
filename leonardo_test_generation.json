@@ -1,0 +1,47 @@
+{
+  "generations_by_pk": {
+    "generated_images": [
+      {
+        "url": "https://cdn.leonardo.ai/users/2ca8d47f-7e70-482d-9760-a68a3bec684b/generations/3876a240-4ad1-4453-83d8-df57519d7240/Leonardo_Lightning_XL_A_futuristic_AI_robot_emerging_from_a_co_0.jpg",
+        "nsfw": false,
+        "id": "b692e822-036e-4eb8-8d6d-79c1208f8a08",
+        "likeCount": 0,
+        "motionMP4URL": null,
+        "generated_image_variation_generics": []
+      }
+    ],
+    "modelId": "b24e16ff-06e3-43eb-8d33-4416c2d75876",
+    "motion": null,
+    "motionModel": null,
+    "motionStrength": null,
+    "prompt": "A futuristic AI robot emerging from a computer screen, holding an envelope with a glowing API key inside, cyberpunk style, neon colors, highly detailed",
+    "negativePrompt": "",
+    "imageHeight": 1024,
+    "imageToVideo": null,
+    "imageWidth": 1024,
+    "inferenceSteps": 15,
+    "seed": 8702841726,
+    "ultra": null,
+    "public": false,
+    "scheduler": "EULER_DISCRETE",
+    "sdVersion": "SDXL_LIGHTNING",
+    "status": "COMPLETE",
+    "presetStyle": null,
+    "initStrength": null,
+    "guidanceScale": 7,
+    "id": "3876a240-4ad1-4453-83d8-df57519d7240",
+    "createdAt": "2026-02-04T04:31:21.845",
+    "promptMagic": false,
+    "promptMagicVersion": null,
+    "promptMagicStrength": null,
+    "photoReal": false,
+    "photoRealStrength": null,
+    "fantasyAvatar": null,
+    "prompt_moderations": [
+      {
+        "moderationClassification": []
+      }
+    ],
+    "generation_elements": []
+  }
+}
