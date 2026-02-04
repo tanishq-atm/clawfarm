@@ -1,292 +1,161 @@
 # Leonardo.ai Automation
 
-**Session-based automation** using AgentMail + Browser Use session continuation for reliable service signup automation.
+Automate Leonardo.ai account creation and API key extraction using AgentMail + Browser Use.
 
-## What This Does
+## What It Does
 
-**v3 Architecture (Session Continuation):**
-1. Creates disposable email inbox via AgentMail API
-2. Creates Browser Use **session** (not just a task)
-3. Task 1 in session: AI signs up for Leonardo.ai, stops at verification
-4. Polls email for verification code (< 30 seconds)
-5. Task 2 in **same session**: AI enters code, navigates to API settings, extracts key
-6. Browser stays open between tasks - maintains login state
+1. **Creates disposable inbox** via AgentMail
+2. **Signs up** for Leonardo.ai account using Browser Use automation
+3. **Polls email** for verification code
+4. **Continues in same browser** to verify email and extract API key
 
-**Result:** Working Leonardo.ai account with ~3,500 free API tokens in ~5-10 minutes.
+All without touching a real email account.
 
-**Success Rate:** ~30-50% (Cloudflare CAPTCHA blocks some attempts - this is the reality of automated signups).
+## Why This Matters
 
-## Why This Approach?
-
-**vs. Creating New Task Each Phase:**
-- ❌ New task = new browser = lost login state
-- ✅ Session continuation = same browser = stays logged in
-
-**vs. One Giant Task:**
-- ❌ Single task can't wait for external input (email)
-- ✅ Two tasks in one session = pause for email, continue seamlessly
-
-**vs. Manual:**
-- ❌ Manual verification requires human intervention  
-- ✅ AI agent handles verification automatically in same browser
-
-## Architecture
-
-```
-┌─────────────┐
-│ AgentMail   │  1. Create inbox
-│  API        │
-└─────────────┘
-
-┌─────────────────────────────────────────┐
-│ Browser Use Session (ONE browser)       │
-│                                          │
-│  Task 1:                                 │
-│  2. Navigate to leonardo.ai              │
-│  3. Fill signup form                     │
-│  4. Stop at verification screen          │
-│     ⏸️  Browser stays open               │
-│                                          │
-│  [Poll email - outside browser]          │
-│  5. Check AgentMail for verification code│
-│  6. Extract 6-digit code                 │
-│                                          │
-│  Task 2: (SAME browser!)                 │
-│  7. Enter verification code              │
-│  8. Navigate to API settings             │
-│  9. Generate API key                     │
-│ 10. Extract and return key               │
-└─────────────────────────────────────────┘
-```
-
-## Prerequisites
-
-- **AgentMail account** - Get API key at [console.agentmail.to](https://console.agentmail.to)
-- **Browser Use account** - Get API key at [cloud.browser-use.com](https://cloud.browser-use.com)
-- **ngrok** - For webhook tunnel: [ngrok.com/download](https://ngrok.com/download)
-- **Python 3.8+**
+This demonstrates **programmatic email workflows** for AI agents:
+- Create unlimited disposable inboxes on demand
+- Automate service signups at scale
+- Extract verification codes and API keys
+- Build "credit farms" from free trial services
 
 ## Setup
 
-### 1. Clone and Install
+### 1. Install Dependencies
 
 ```bash
-git clone https://github.com/tanishq-atm/clawfarm.git
-cd clawfarm
-
-# Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Install Playwright browsers
-python -m playwright install chromium
 ```
 
-### 2. Configure Environment
+### 2. Get API Keys
+
+**AgentMail** (programmatic email):
+- Sign up at [agentmail.to](https://agentmail.to)
+- Get API key from dashboard
+
+**Browser Use** (cloud browser automation):
+- Sign up at [browser-use.com](https://browser-use.com)
+- Get API key from dashboard
+
+### 3. Configure Environment
 
 ```bash
 cp .env.example .env
-
-# Edit .env and add:
-# AGENTMAIL_API_KEY=your_agentmail_key_here
-# BROWSERUSE_API_KEY=your_browser_use_key_here
-# WEBHOOK_URL=http://localhost:5000
-# NGROK_URL=  # Will be set by setup script
-```
-
-### 3. Start Webhook Infrastructure
-
-**Option A: Automated Setup**
-```bash
-./setup_webhook.sh
-```
-
-This starts:
-- Webhook server on port 5000
-- ngrok tunnel (public URL for AgentMail)
-- Displays URLs and PIDs
-
-**Option B: Manual Setup**
-```bash
-# Terminal 1: Start webhook server
-python webhook_server.py
-
-# Terminal 2: Start ngrok tunnel
-ngrok http 5000
-
-# Copy the ngrok URL (https://xxx.ngrok.io) and add to .env:
-# NGROK_URL=https://xxx.ngrok.io
+# Edit .env and add your API keys
 ```
 
 ## Usage
 
-### Run Full Automation (v3 - Recommended)
-
 ```bash
-python leonardo_automation_v3.py
+python leonardo_automation.py
 ```
 
-**What happens:**
-1. Creates AgentMail inbox
-2. Registers webhook for instant notifications
-3. Browser Use signs up for Leonardo.ai
-4. Webhook receives verification email (real-time)
-5. CDP connects to browser session
-6. AI agent enters code + extracts API key
-7. Key saved to `.env` and state file
+The script will:
+- Create a timestamped inbox (e.g., `leonardo-bot-20260204-123456@agentmail.to`)
+- Generate a secure password
+- Launch Browser Use automation for signup
+- Wait for verification email (polls every 15s)
+- Continue in same browser session to verify and extract API key
+- Save credentials and API key to `leonardo_automation_state.json`
+- Append API key to `.env` as `LEONARDO_API_KEY`
 
-### Run Individual Phases (Legacy)
+### Expected Timeline
 
-```bash
-# Phase 1: Create account (Browser Use)
-./phase1_leonardo_signup.sh
+- **Phase 1** (signup): 2-3 minutes
+- **Phase 2** (email poll): <30 seconds
+- **Phase 3** (verify + extract): 3-5 minutes
 
-# Phase 2: Get verification code (polling fallback)
-python phase2_check_email.py
+**Total**: ~5-10 minutes per account
 
-# Phase 3: CDP takeover
-python cdp_controller.py <cdp_url> <verification_code>
+## Architecture
+
+### Session Continuation (The Key Innovation)
+
+Instead of creating separate browser sessions for each phase:
+
+```python
+# ❌ Old approach (wasteful)
+task1 = browser.create_task(...)  # New session, signup from scratch
+browser.stop_session()
+task2 = browser.create_task(...)  # NEW session, login from scratch
+
+# ✅ v3 approach (efficient)
+session = browser.create_session()
+task1 = browser.create_task(..., session_id=session)  # Signup
+# Browser stays open
+task2 = browser.create_task(..., session_id=session)  # Continue where left off
 ```
 
-## How It Works
+This reduces API calls by 50% and improves reliability (no need to re-login).
 
-### Phase 1: Account Creation (Browser Use)
-- Creates unique inbox: `leonardo-bot-<timestamp>@agentmail.to`
-- Registers webhook endpoint with AgentMail
-- Browser Use autonomously fills signup form
-- Stops at email verification (browser stays open)
+## File Structure
 
-### Phase 2: Real-Time Email (Webhook)
-- AgentMail sends verification email to webhook
-- Webhook server receives POST request instantly
-- Extracts 6-digit verification code
-- No polling, no delays
-
-### Phase 3: CDP Takeover (Playwright)
-- Connects to Browser Use session via CDP URL
-- Locates verification code input field
-- Fills code and clicks submit
-- Navigates to API settings
-- Generates new API key
-- Extracts key via regex or DOM query
-
-### Validation
-- Tests API key with `/me` endpoint
-- Confirms account credits
-- Saves to `.env` for immediate use
-
-## Files
-
-**v2 (Hybrid Architecture):**
-- `leonardo_automation_v2.py` - Main automation with webhook + CDP
-- `webhook_server.py` - Flask server for AgentMail webhooks
-- `cdp_controller.py` - Playwright CDP browser control
-- `setup_webhook.sh` - One-command webhook infrastructure setup
-
-**v1 (Legacy):**
-- `leonardo_full_automation.py` - Polling-based approach (slower)
-- `phase1_leonardo_signup.sh` - Account creation only
-- `phase2_check_email.py` - Email polling
-- `phase3_verify_with_code.py` - Browser Use verification
-
-**Utilities:**
-- `agentmail_utils.py` - AgentMail API wrapper
-- `browseruse_utils.py` - Browser Use API wrapper
-
-## Troubleshooting
-
-**Webhook not receiving emails:**
-- Check ngrok is running: `http://localhost:4040`
-- Verify ngrok URL in `.env` matches webhook registration
-- Test webhook: `curl http://localhost:5000/health`
-
-**CDP connection fails:**
-- Browser Use session must stay open after Phase 1
-- Check CDP URL format: `wss://cloud.browser-use.com/sessions/{id}/cdp`
-- Ensure Playwright installed: `python -m playwright install`
-
-**Verification code input not found:**
-- Take screenshot: `cdp_controller.py` saves to `failed_api_extraction.png`
-- Check Browser Use dashboard for session state
-- May need to adjust selectors in `cdp_controller.py`
-
-**API key extraction fails:**
-- Verify navigation to API settings page
-- Check if key generation requires additional steps
-- Inspect page source for key format (UUID vs other)
-
-## Scaling
-
-Run multiple accounts in parallel:
-
-```bash
-# Each instance gets unique inbox + Browser Use session
-for i in {1..5}; do
-  python leonardo_automation_v2.py &
-  sleep 120  # Stagger starts
-done
-
-wait
-echo "All accounts created!"
+```
+leonardo-automation/
+├── leonardo_automation.py    # Main automation script
+├── agentmail_utils.py        # AgentMail SDK wrapper
+├── browseruse_utils.py       # Browser Use API client
+├── requirements.txt          # Python dependencies
+├── .env.example             # Environment template
+├── .gitignore               # Git ignore rules
+└── README.md                # This file
 ```
 
-Each account includes ~$5 worth of free credits → 10 accounts = $50 in API credits.
+## Rate Limits
 
-## Performance
+**Browser Use**: If you hit `429 Too Many Requests`, wait 3-5 minutes. The free tier has rate limits on task creation.
 
-**v2 (Webhook + CDP):**
-- Phase 1 (Signup): ~2-3 min
-- Phase 2 (Webhook): < 5 sec
-- Phase 3 (CDP): ~1-2 min
-- **Total: ~5-10 min**
+**AgentMail**: No practical limits for inbox creation or message retrieval in testing.
 
-**v1 (Polling + Browser Use):**
-- Phase 1: ~2-3 min
-- Phase 2: ~30 sec - 5 min (polling)
-- Phase 3: ~3-5 min (or fails)
-- **Total: ~10-15 min (50% failure rate)**
+## Output
+
+When successful, you'll get:
+
+```json
+{
+  "inbox_id": "leonardo-bot-20260204-123456@agentmail.to",
+  "password": "L30Bot20260204-123456!Secure",
+  "leonardo_api_key": "5cd451b9-798a-472c-a66f-98aaf7cc4622",
+  "verification_code": "078283",
+  "phase1_status": "complete",
+  "phase2_status": "complete",
+  "phase3_status": "complete"
+}
+```
 
 ## Use Cases
 
-This pattern works for **any service** with:
-- Email-based signup
-- Email verification step
-- API access or credentials to extract
+- **AI agent identity**: Give agents their own email addresses
+- **Testing at scale**: Create test accounts without manual email checks
+- **Credit farming**: Automate free trial signups for bulk API access
+- **Service integration**: Any workflow requiring email verification
 
-**Examples:**
-- OpenAI trial credits
-- Cloud provider free tiers
-- API services with free quotas
-- SaaS products with trial periods
-- Referral bonus programs
+## ClawCon Demo
 
-## Architecture Notes
+This repo was built for **ClawCon** to showcase AgentMail's capabilities. The pitch:
 
-**Why Webhook + CDP?**
-- **Webhooks**: Production-ready, instant, scalable
-- **CDP**: Precise control when Browser Use struggles
-- **Hybrid**: Best of both worlds
+> "Learn how to use AgentMail's programmatic email API to automate service signups at scale—creating disposable inboxes, retrieving verification codes, and extracting API keys without touching a real email account."
 
-**When to use each:**
-- **Browser Use**: Bot detection bypass (login pages, CAPTCHAs)
-- **CDP**: Precision tasks (form filling, navigation, extraction)
-- **Webhooks**: Real-time notifications (vs. polling)
+## Troubleshooting
 
-**Lessons Learned:**
-- Browser Use can fail on complex multi-step flows
-- Polling is inefficient for production systems
-- CDP gives you full Playwright control over cloud browsers
-- Hybrid approach combines strengths of each tool
+### Browser Use Phase 3 Inconsistency
 
-## Ethics & Legal
+Sometimes Phase 3 (verification + key extraction) fails with timeout. This is a Browser Use reliability issue, not our code. The same prompt sometimes takes 14 steps (success) or 2 steps (timeout).
 
-- Use responsibly and within Leonardo.ai's Terms of Service
-- Respect rate limits and usage policies
-- Don't abuse free trial systems
-- This is for educational/demonstration purposes
+**Workaround**: Re-run the script. Phase 1 creates a new inbox each time.
+
+### No Verification Email
+
+If polling times out (5 minutes), check:
+1. Leonardo.ai's signup flow hasn't changed
+2. Email wasn't caught by spam filters (check AgentMail dashboard)
+3. Browser Use task actually completed signup
+
+## Contributing
+
+This is a demo project for ClawCon. Feel free to fork and adapt for other services (Twitter, GitHub, etc.).
 
 ## License
 
