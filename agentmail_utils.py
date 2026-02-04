@@ -91,8 +91,14 @@ class AgentMailClient:
                 
                 for msg in messages:
                     # Extract sender
-                    from_list = msg.get("from", [])
-                    from_email = from_list[0].get("email", "") if from_list else ""
+                    from_field = msg.get("from", "")
+                    # from_field is a string like "Leonardo Ai <contact@leonardo.ai>"
+                    if isinstance(from_field, str):
+                        from_email = from_field
+                    elif isinstance(from_field, list) and from_field:
+                        from_email = from_field[0].get("email", "") if isinstance(from_field[0], dict) else str(from_field[0])
+                    else:
+                        from_email = ""
                     
                     # Extract subject
                     subject = msg.get("subject", "")

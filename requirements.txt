@@ -2,3 +2,9 @@
 agentmail>=0.1.0
 httpx>=0.27.0
 python-dotenv>=1.0.0
+
+# Webhook server
+flask>=3.0.0
+
+# CDP browser control
+playwright>=1.40.0
