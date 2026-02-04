@@ -66,7 +66,8 @@ Fill out the signup form completely and submit it. Stop when you reach the email
         task=task1_prompt,
         start_url="https://app.leonardo.ai",
         max_steps=100,
-        session_id=session_id  # Use the session!
+        session_id=session_id,  # Use the session!
+        llm="browser-use-2.0"  # Latest optimized Browser Use model
     )
     
     task1_id = task1_response.get('id')
@@ -143,7 +144,8 @@ After email verification is complete, navigate to the API settings or developer 
     task2_response = browser.create_task(
         task=task2_prompt,
         max_steps=150,
-        session_id=session_id  # SAME SESSION!
+        session_id=session_id,  # SAME SESSION!
+        llm="browser-use-2.0"  # Latest optimized Browser Use model
     )
     
     task2_id = task2_response.get('id')

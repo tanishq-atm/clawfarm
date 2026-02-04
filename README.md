@@ -161,31 +161,25 @@ This is a demo project for ClawCon. Feel free to fork and adapt for other servic
 
 MIT
 
-## Known Limitations
+## Performance
 
-### Browser Use vs Leonardo.ai Anti-Bot Protection
+### Successful Run (Feb 4, 2026)
 
-**Current Status**: Leonardo.ai has anti-bot protection that blocks Browser Use's cloud browsers from completing signup.
+**Total time: 2 minutes 38 seconds** ✅
 
-**Evidence**:
-- Simple Browser Use tasks (example.com) work fine
-- Leonardo.ai signup fails immediately with "consecutive step failures" (0 steps)
-- This suggests bot detection at the browser fingerprint level
+- **Phase 1** (Signup): ~90 seconds
+- **Phase 2** (Email retrieval): <30 seconds  
+- **Phase 3** (Verify + extract key): ~60 seconds
 
-**Workarounds**:
-1. Use Browser Use with **residential proxies** (paid tier)
-2. Switch to **local Playwright** with stealth plugins
-3. Demo with a **different service** (e.g., Replicate, Stability AI)
-4. Focus on **architecture demo** rather than live run
+**Key insight**: Use `browser-use-2.0` model instead of default `browser-use-llm` for better success rate with modern web apps.
 
-### ClawCon Strategy
+### Model Comparison
 
-Instead of a live end-to-end demo, focus on:
+| Model | Leonardo.ai Result | Speed |
+|-------|-------------------|-------|
+| `browser-use-llm` | ❌ Fails (0 steps) | N/A |
+| `browser-use-2.0` | ✅ Works | 2m38s |
+| `gemini-3-pro-preview` | ⚠️ Slow | >5min |
 
-1. **AgentMail capabilities** - show inbox creation, email retrieval (works 100%)
-2. **Architecture pattern** - explain session continuation approach
-3. **Code walkthrough** - demonstrate the automation logic
-4. **Alternative use cases** - Twitter verification, GitHub signups, etc.
-
-The **pattern** is valuable even if Leonardo.ai specifically blocks automation.
+**Recommendation**: Stick with `browser-use-2.0` for production use.
 
