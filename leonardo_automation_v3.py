@@ -130,9 +130,13 @@ Fill out the signup form completely and submit it. Stop when you reach the email
     # Phase 3: Continue in SAME browser
     print(f"\n🎯 Phase 3: Continuing in same browser session\n")
     
-    task2_prompt = f"""You are on the Leonardo.ai verification page. Enter the verification code: {verification_code}
+    task2_prompt = f"""Continue on app.leonardo.ai. You are completing signup for:
+- Email: {inbox_id}
+- Password: {password}
 
-After verification is complete, navigate to the API settings or developer settings page (look in account menu, user settings, or developer section). Generate a new API key. Extract and return the complete API key value."""
+You should see a verification code input field. Enter the verification code: {verification_code}
+
+After email verification is complete, navigate to the API settings or developer settings page (look in account menu, user settings, or developer section). Generate a new API key. Extract and return the complete API key value."""
     
     print(f"🌐 Creating verification task in same session...")
     
@@ -155,9 +159,12 @@ After verification is complete, navigate to the API settings or developer settin
     state["phase3_status"] = "complete" if task2_result.get('isSuccess') else "failed"
     state["phase3_output"] = task2_result.get('output', '')
     
-    # Stop session
-    browser.stop_session(session_id)
-    print(f"🧹 Session stopped")
+    # Try to stop session (may auto-close)
+    try:
+        browser.stop_session(session_id)
+        print(f"🧹 Session stopped")
+    except Exception as e:
+        print(f"⚠️  Session cleanup: {e} (may have auto-closed)")
     
     if not task2_result.get('isSuccess'):
         print(f"\n❌ Phase 3 failed: {task2_result.get('output')}")
