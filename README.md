@@ -160,3 +160,32 @@ This is a demo project for ClawCon. Feel free to fork and adapt for other servic
 ## License
 
 MIT
+
+## Known Limitations
+
+### Browser Use vs Leonardo.ai Anti-Bot Protection
+
+**Current Status**: Leonardo.ai has anti-bot protection that blocks Browser Use's cloud browsers from completing signup.
+
+**Evidence**:
+- Simple Browser Use tasks (example.com) work fine
+- Leonardo.ai signup fails immediately with "consecutive step failures" (0 steps)
+- This suggests bot detection at the browser fingerprint level
+
+**Workarounds**:
+1. Use Browser Use with **residential proxies** (paid tier)
+2. Switch to **local Playwright** with stealth plugins
+3. Demo with a **different service** (e.g., Replicate, Stability AI)
+4. Focus on **architecture demo** rather than live run
+
+### ClawCon Strategy
+
+Instead of a live end-to-end demo, focus on:
+
+1. **AgentMail capabilities** - show inbox creation, email retrieval (works 100%)
+2. **Architecture pattern** - explain session continuation approach
+3. **Code walkthrough** - demonstrate the automation logic
+4. **Alternative use cases** - Twitter verification, GitHub signups, etc.
+
+The **pattern** is valuable even if Leonardo.ai specifically blocks automation.
+
