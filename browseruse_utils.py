@@ -13,7 +13,9 @@ class BrowserUseClient:
     """Browser Use API client"""
     
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("BROWSERUSE_API_KEY", "bu_RE73gaEVWynxZNuRjWlyLxQWQTFz2-8vwQNBFdhtauw")
+        self.api_key = api_key or os.getenv("BROWSERUSE_API_KEY")
+        if not self.api_key:
+            raise ValueError("BROWSERUSE_API_KEY not found in environment")
         self.base_url = "https://api.browser-use.com/api/v2"
         self.headers = {"X-Browser-Use-API-Key": self.api_key}
     
