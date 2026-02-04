@@ -3,6 +3,17 @@
 *.key
 *.log
 
+# Personal workspace files (not part of repo)
+AGENTS.md
+SOUL.md
+TOOLS.md
+USER.md
+IDENTITY.md
+BOOTSTRAP.md
+HEARTBEAT.md
+memory/
+skills/
+
 # Credentials and state files
 *_credentials.json
 *_state.json
