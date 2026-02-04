@@ -1,6 +1,6 @@
 # Clawfarm
 
-Fully automated Leonardo.ai account creation and API key extraction using programmatic email.
+Fully automated Leonardo.ai account creation and API key extraction using AgentMail.
 
 ## What It Does
 
