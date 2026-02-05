@@ -1,44 +1,68 @@
-# Environment and secrets
+# Environment variables
 .env
-*.key
-*.log
-
-# Personal workspace files (not part of repo)
-AGENTS.md
-SOUL.md
-TOOLS.md
-USER.md
-IDENTITY.md
-BOOTSTRAP.md
-HEARTBEAT.md
-memory/
-skills/
-
-# Credentials and state files
-*_credentials.json
-*_state.json
-leonardo_*.json
-verification_*.json
-full_message.json
+.env.local
 
 # Python
-venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Node (if used)
-node_modules/
+# Results and output files
+results/
+*.json
+!.env.example
+leonardo_*.json
+clawcon_*.json
+mosaic_*.json
+mosaic_*.jpg
+*.jpg
+*.png
+*.jpeg
+
+# Logs
+*.log
+webhook.log
+ngrok.log
+
+# State files
+*_state.json
+*_results_*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-# ClawHub
+# Temporary files
+*.tmp
+*.bak
+.cache/
+
+# Browser automation
+playwright-report/
+test-results/

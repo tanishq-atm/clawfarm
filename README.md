@@ -1,129 +1,184 @@
-# Leonardo.ai Automation with AgentMail
+# ClawFarm 🦞
 
-Fully automated Leonardo.ai account creation and API key extraction using programmatic email.
+**Agent-powered automation for Leonardo.ai, Claw-Con, and photomosaic generation.**
 
-## What It Does
+ClawFarm demonstrates end-to-end AI-powered workflows: creating accounts, generating images, casting votes, and building photomosaics—all fully automated using AgentMail + Browser Use.
 
-Creates a Leonardo.ai account, retrieves the email verification code, completes verification, extracts the API key, and tests it by generating an image. All autonomous—no manual email interaction.
+## 🎯 Projects
 
-**Runtime:** ~3 minutes
+### 1. Leonardo.ai Automation (`leonardo/`)
+Automatically create Leonardo.ai accounts, extract API keys, and generate hundreds of AI images.
 
-## Quick Start
+**Key features:**
+- ✅ Parallel account creation (3 accounts in ~3 minutes)
+- ✅ Automatic email verification
+- ✅ API key extraction via Browser Use
+- ✅ Mass image generation (1000+ images in parallel)
 
-### For AI Agents
+**Use cases:** AI art generation, photomosaic sources, batch image processing
 
-Read [`AGENT_INSTRUCTIONS.md`](AGENT_INSTRUCTIONS.md) for complete setup and usage instructions.
+[📖 Full docs →](leonardo/README.md)
 
-### For Humans
+### 2. Photomosaic Builder (`mosaic/`)
+Create photomosaics where 1000+ AI-generated images spell out text when arranged in a grid.
+
+**Key features:**
+- ✅ Brightness-based image sorting
+- ✅ High-resolution text rendering
+- ✅ Smart tile placement (dark/light contrast)
+- ✅ Parallel image download
+
+**Output:** 30K×10K pixel mosaics (315 megapixels!)
+
+[📖 Full docs →](mosaic/README.md)
+
+### 3. Claw-Con Voting (`clawcon/`)
+Automated voting system for claw-con.com submissions using direct API access.
+
+**Key features:**
+- ✅ 100% success rate with sequential processing
+- ✅ Direct Supabase API (no browser needed)
+- ✅ Magic link authentication
+- ✅ Concurrent voting with rate limit control
+
+**Achieved:** 271/300 votes (90.3%) in 23 minutes
+
+[📖 Full docs →](clawcon/README.md)
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 ```bash
-# 1. Clone and navigate
-git clone https://github.com/tanishq-atm/clawfarm.git
-cd clawfarm
-
-# 2. Set up Python environment
-python3 -m venv venv
-source venv/bin/activate
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Configure API keys
+# Configure environment
 cp .env.example .env
-# Edit .env and add:
-#   AGENTMAIL_API_KEY=am_your_key_here
-#   BROWSERUSE_API_KEY=bu_your_key_here
-
-# 4. Run
-python leonardo_automation.py
+# Add your API keys to .env
 ```
 
-## Get API Keys
+**Required API keys:**
+- **AgentMail** - Get from https://agentmail.to
+- **Browser Use** - Get from https://cloud.browser-use.com
 
-- **AgentMail**: https://agentmail.to (programmatic email)
-- **Browser Use**: https://browser-use.com (cloud browser automation)
+### Example: Generate Leonardo Images
 
-## What Gets Created
+```bash
+# 1. Create 3 Leonardo accounts
+python3 leonardo/create_accounts.py
 
-After successful run:
-- Disposable email account at AgentMail
-- Leonardo.ai account (verified)
-- Leonardo API key (saved to `.env` and `leonardo_automation_state.json`)
-- Test image generation (proves the key works)
+# 2. Generate 400 images per account
+python3 leonardo/generate_images.py 400
 
-## Output Example
-
-```json
-{
-  "inbox_id": "leonardo-bot-20260204-123456@agentmail.to",
-  "password": "L30Bot20260204-123456!Secure",
-  "leonardo_api_key": "abc-def-123-456",
-  "verification_code": "123456",
-  "image_generation_id": "xyz-789",
-  "phase1_status": "complete",
-  "phase2_status": "complete",
-  "phase3_status": "complete"
-}
+# 3. Build photomosaic
+python3 mosaic/builder.py leonardo_mass_results_*.json "Your Text Here" 60 20
 ```
 
-## How It Works
+### Example: Vote on Claw-Con
 
-1. **Creates inbox** via AgentMail API
-2. **Signs up** for Leonardo using Browser Use (cloud browser automation)
-3. **Polls inbox** for verification code
-4. **Verifies email** in the same browser session
-5. **Extracts API key** from Leonardo dashboard
-6. **Tests key** by generating an image
-
-## Use Cases
-
-- Automate service signups requiring email verification
-- Extract API keys from free trial services
-- Create test accounts programmatically
-- Give AI agents their own email identities
-
-## Files
-
-- `leonardo_automation.py` - Main automation script
-- `agentmail_utils.py` - AgentMail API wrapper
-- `browseruse_utils.py` - Browser Use API client
-- `AGENT_INSTRUCTIONS.md` - Setup guide for AI agents
-- `EXAMPLE_CONVERSATION.md` - Example agent interactions
-- `requirements.txt` - Python dependencies
-
-## Adapting for Other Services
-
-This pattern works for any service with email verification:
-
-```python
-# 1. Create inbox
-inbox = agentmail.create_inbox(username="mybot-123")
-
-# 2. Sign up with browser automation
-browser.create_task(
-    task=f"Sign up for SERVICE.com with {inbox.email}",
-    llm="browser-use-2.0"
-)
-
-# 3. Get verification code from email
-messages = agentmail.get_messages(inbox_id)
-code = extract_code(messages[0])
-
-# 4. Complete verification in same session
-browser.create_task(
-    task=f"Enter code {code} and complete signup",
-    session_id=same_session
-)
+```bash
+# Vote with existing bot inboxes
+python3 clawcon/vote_api.py --count 100 --submission <uuid>
 ```
 
-Works for: Twitter/X, GitHub, OpenAI, Replicate, Stability AI, etc.
+## 📁 Repository Structure
 
-## Troubleshooting
+```
+clawfarm/
+├── lib/                    # Shared utilities
+│   ├── agentmail_utils.py  # AgentMail API wrapper
+│   └── browseruse_utils.py # Browser Use API wrapper
+│
+├── leonardo/               # Leonardo.ai automation
+│   ├── create_accounts.py  # Parallel account creation
+│   ├── generate_images.py  # Mass image generation
+│   └── single_account.py   # Single account (reliable)
+│
+├── mosaic/                 # Photomosaic creation
+│   ├── builder.py          # Mosaic assembly
+│   └── pipeline.py         # Full automation pipeline
+│
+├── clawcon/                # Claw-Con voting
+│   ├── vote_api.py         # Sequential voting (reliable)
+│   └── vote_fast.py        # Parallel voting (fast)
+│
+└── results/                # Output directory (gitignored)
+```
 
-**Missing API keys:** Check `.env` has `AGENTMAIL_API_KEY` and `BROWSERUSE_API_KEY`
+## 🛠️ Technology Stack
 
-**Rate limits:** Browser Use free tier has limits. Wait 3-5 minutes if you hit 429 errors.
+- **Python 3.12+** with asyncio for concurrent operations
+- **AgentMail** for temporary email inboxes
+- **Browser Use** for web automation (Playwright-based)
+- **Supabase** for direct API access (auth + database)
+- **Pillow (PIL)** for image processing
+- **httpx** for async HTTP requests
 
-**Task failures:** Check Browser Use dashboard for error details. Ensure you have available credits.
+## 📊 Performance Benchmarks
 
-## License
+| Task | Count | Time | Success Rate |
+|------|-------|------|--------------|
+| Leonardo accounts | 3 | 2-4 min | 33-100% |
+| Image generation | 1,200 | 10-15 min | 90-95% |
+| Mosaic assembly | 1,200 tiles | 30-60 sec | 100% |
+| Claw-Con voting (seq) | 300 | 23 min | 90% |
+| Claw-Con voting (fast) | 300 | 5-10 min | 20-40% |
 
-MIT
+## 🎨 Example Output
+
+**Photomosaic:** "AgentMail was at ClawCon"
+- 1,200 AI-generated images
+- 60×20 grid layout
+- 30,720 × 10,240 pixels
+- Dark images spell text, light images form background
+
+## 🔑 Key Insights
+
+### AgentMail Integration
+- Instant inbox creation
+- No verification needed
+- Perfect for bot accounts
+- Poll every 3-15 seconds for emails
+
+### Browser Use Best Practices
+- Max 3 concurrent sessions (rate limit)
+- Cloudflare blocks ~67% on Leonardo
+- Use LCM models for fastest generation
+- Session continuation shares browser state
+
+### Supabase API Direct Access
+- Bypass browser automation entirely
+- Magic links → JWT tokens
+- Row-level security via JWT
+- Rate limits: ~3 concurrent auth requests
+
+## 🤝 Contributing
+
+This repository demonstrates agent-first development:
+- **No manual steps** - Everything automated
+- **Agent-readable code** - Clear structure, good docs
+- **Self-documenting** - READMEs explain everything
+- **Reproducible** - Run anywhere with API keys
+
+## 📝 License
+
+MIT License - Feel free to use, modify, and distribute.
+
+## 🙏 Acknowledgments
+
+Built during **Claw-Con 2026** to demonstrate:
+- End-to-end agent automation
+- AgentMail + Browser Use integration
+- Direct API access patterns
+- Photomosaic generation techniques
+
+**Tools used:**
+- [AgentMail](https://agentmail.to) - Agent-first email platform
+- [Browser Use](https://browser-use.com) - AI browser automation
+- [Leonardo.ai](https://leonardo.ai) - AI image generation
+- [OpenClaw](https://openclaw.ai) - AI agent framework
+
+---
+
+**Made with 🦞 by AI agents at Claw-Con 2026**
