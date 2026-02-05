@@ -13,8 +13,8 @@ from typing import List, Dict
 # Fast generation settings
 FAST_MODEL = "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3"  # Leonardo Creative (fast)
 IMAGE_SIZE = 512  # Small for speed
-NUM_INFERENCE_STEPS = 4  # Minimum for speed (LCM model)
-GUIDANCE_SCALE = 1  # Low for speed
+NUM_INFERENCE_STEPS = 10  # Leonardo minimum (was 4, but rejected)
+GUIDANCE_SCALE = 3  # Reasonable value (was 1, might be too low)
 
 # Prompts for variety
 DARK_PROMPTS = [
@@ -63,7 +63,8 @@ async def generate_image(prompt: str, api_key: str, session: httpx.AsyncClient, 
         )
         
         if response.status_code not in [200, 201]:
-            return {"id": img_id, "status": "failed", "error": f"HTTP {response.status_code}"}
+            error_msg = response.text[:200]  # First 200 chars of error
+            return {"id": img_id, "status": "failed", "error": f"HTTP {response.status_code}: {error_msg}"}
         
         data = response.json()
         generation_id = data.get("sdGenerationJob", {}).get("generationId")
@@ -110,35 +111,45 @@ async def generate_image(prompt: str, api_key: str, session: httpx.AsyncClient, 
     except Exception as e:
         return {"id": img_id, "status": "failed", "error": str(e)}
 
-async def generate_batch(api_key: str, num_images: int, start_id: int, is_dark: bool) -> List[Dict]:
+async def generate_batch(api_key: str, num_images: int, start_id: int, is_dark: bool, semaphore: asyncio.Semaphore) -> List[Dict]:
     """Generate a batch of images with one API key"""
     
     prompts = DARK_PROMPTS if is_dark else LIGHT_PROMPTS
     
-    async with httpx.AsyncClient(timeout=60) as session:
-        tasks = []
-        for i in range(num_images):
-            img_id = start_id + i
-            prompt = prompts[i % len(prompts)]
-            task = generate_image(prompt, api_key, session, img_id)
-            tasks.append(task)
-        
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Filter out exceptions
-        valid_results = [r for r in results if isinstance(r, dict)]
-        return valid_results
+    async def rate_limited_generate(prompt, img_id):
+        async with semaphore:
+            async with httpx.AsyncClient(timeout=60) as session:
+                return await generate_image(prompt, api_key, session, img_id)
+    
+    tasks = []
+    for i in range(num_images):
+        img_id = start_id + i
+        prompt = prompts[i % len(prompts)]
+        task = rate_limited_generate(prompt, img_id)
+        tasks.append(task)
+    
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    # Filter out exceptions
+    valid_results = [r for r in results if isinstance(r, dict)]
+    return valid_results
 
 async def main_async(api_keys: List[str], images_per_key: int):
     """Generate all images in parallel"""
+    
+    MAX_CONCURRENT = 10  # Leonardo API concurrency limit
     
     print(f"\n🚀 Leonardo Mass Generation")
     print(f"   API Keys: {len(api_keys)}")
     print(f"   Images per key: {images_per_key}")
     print(f"   Total images: {len(api_keys) * images_per_key}")
+    print(f"   Max concurrent: {MAX_CONCURRENT}")
     print(f"   Strategy: {images_per_key//2} dark + {images_per_key//2} light per key\n")
     
     start_time = time.time()
+    
+    # Create semaphore for rate limiting
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT)
     
     # Launch all batches in parallel
     tasks = []
@@ -149,12 +160,12 @@ async def main_async(api_keys: List[str], images_per_key: int):
         half = images_per_key // 2
         
         # Dark batch
-        dark_task = generate_batch(api_key, half, img_id, is_dark=True)
+        dark_task = generate_batch(api_key, half, img_id, is_dark=True, semaphore=semaphore)
         tasks.append(dark_task)
         img_id += half
         
         # Light batch
-        light_task = generate_batch(api_key, half, img_id, is_dark=False)
+        light_task = generate_batch(api_key, half, img_id, is_dark=False, semaphore=semaphore)
         tasks.append(light_task)
         img_id += half
         

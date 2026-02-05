@@ -170,14 +170,13 @@ Fill out the signup form completely and submit it. Stop when you reach the email
     return state
 
 async def main():
-    print("\n🚀 Leonardo.ai Parallel Automation - 3 Accounts\n")
+    print("\n🚀 Leonardo.ai Account Creation - Single Account Demo\n")
     print("="*60 + "\n")
     
     start_time = time.time()
     
-    # Run 3 accounts in parallel
-    tasks = [create_leonardo_account(i) for i in range(1, 4)]
-    results = await asyncio.gather(*tasks)
+    # Create just 1 account for demo
+    results = [await create_leonardo_account(1)]
     
     elapsed = time.time() - start_time
     success_count = sum(1 for r in results if r.get('status') == 'success')
