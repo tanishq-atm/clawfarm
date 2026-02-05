@@ -69,3 +69,19 @@ test-results/
 
 # Archive (old/test scripts)
 archive/
+
+# OpenClaw workspace files (not part of ClawFarm project)
+memory/
+skills/
+AGENTS.md
+SOUL.md
+TOOLS.md
+USER.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+AGENT_INSTRUCTIONS.md
+EXAMPLE_CONVERSATION.md
+ANTHROPIC_TUNNEL_README.md
+MOSAIC_PIPELINE.md
+SCALE_TEST_README.md
