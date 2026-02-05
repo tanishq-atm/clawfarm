@@ -1,7 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Full Demo Pipeline: AgentMail at ClawCon"
+echo "🦞 ClawCon Lobster Generator"
+echo "==========================================="
+echo ""
+echo "Full autonomous flow:"
+echo "  1. Create AgentMail inbox"
+echo "  2. Browser automation Leonardo signup"
+echo "  3. Extract API key"
+echo "  4. Generate ClawCon lobster image"
+echo ""
 echo "==========================================="
 echo ""
 
@@ -23,16 +31,15 @@ echo ""
 echo "✅ Phase 1 complete!"
 echo ""
 
-# Phase 2: Generate single image
-echo "📍 Phase 2: Generating image..."
-python3 leonardo/generate_single.py "$RESULTS_FILE" "AgentMail is at ClawCon, vibrant logo design, professional branding, modern tech aesthetic, high quality"
+# Phase 2: Generate ClawCon image
+echo "📍 Phase 2: Generating ClawCon lobster image..."
+python3 leonardo/generate_clawcon.py "$RESULTS_FILE"
+
+IMAGE_FILE=$(ls -t clawcon_*.jpg 2>/dev/null | head -1)
 
 echo ""
 echo "✅ Phase 2 complete!"
 echo ""
-
-# Find the generated image
-IMAGE_FILE=$(ls -t agentmail_clawcon_*.jpg 2>/dev/null | head -1)
 
 if [ -z "$IMAGE_FILE" ]; then
     echo "❌ No image file found"
@@ -40,9 +47,11 @@ if [ -z "$IMAGE_FILE" ]; then
 fi
 
 echo "==========================================="
-echo "🎉 COMPLETE!"
+echo "🎉 CLAWCON GENERATED!"
 echo ""
 echo "📸 Your image: $IMAGE_FILE"
 echo ""
-echo "Total time: ~3-5 minutes"
+echo "Model: Leonardo Phoenix 1.0"
+echo "Resolution: 1024×1024"
+echo "Total time: ~4 minutes"
 echo "==========================================="

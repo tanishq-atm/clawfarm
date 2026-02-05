@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate single Leonardo image with text
+Generate ClawCon lobster image with Leonardo AI
 """
 import asyncio
 import httpx
@@ -10,14 +10,19 @@ from PIL import Image
 import io
 from datetime import datetime
 
-async def generate_single_image(api_key: str, prompt: str):
-    """Generate one image and download it"""
+async def generate_clawcon(api_key: str):
+    """Generate ClawCon lobster conference image"""
     
-    print(f"🎨 Generating image...")
+    # Phoenix 1.0 - best prompt adherence
+    model_id = "de7d3faf-762f-48e0-b3b7-9d0ac3a3fcf3"
+    
+    print("🦞 Generating ClawCon with Phoenix 1.0...\n")
+    
+    prompt = "a large conference hall filled with red lobsters attending a tech conference, lobsters sitting at tables with laptops, professional conference setting, modern lighting, ClawCon banner in background, humorous but realistic style, detailed, high quality"
+    
     print(f"   Prompt: {prompt}\n")
     
     async with httpx.AsyncClient(timeout=120) as session:
-        # Start generation
         response = await session.post(
             "https://cloud.leonardo.ai/api/rest/v1/generations",
             headers={
@@ -30,8 +35,8 @@ async def generate_single_image(api_key: str, prompt: str):
                 "num_images": 1,
                 "width": 1024,
                 "height": 1024,
-                "modelId": "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3",
-                "num_inference_steps": 20,
+                "modelId": model_id,
+                "num_inference_steps": 30,
                 "guidance_scale": 7
             }
         )
@@ -82,7 +87,7 @@ async def generate_single_image(api_key: str, prompt: str):
                     
                     # Save
                     timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
-                    output_file = f"agentmail_clawcon_{timestamp}.jpg"
+                    output_file = f"clawcon_{timestamp}.jpg"
                     img.save(output_file, 'JPEG', quality=95)
                     
                     print(f"✅ Saved to: {output_file}")
@@ -98,11 +103,12 @@ async def generate_single_image(api_key: str, prompt: str):
 
 async def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 generate_single.py <results_json> [prompt]")
+        print("Usage: python3 generate_clawcon.py <results_json>")
+        print("\nExample:")
+        print("  python3 generate_clawcon.py leonardo_results.json")
         sys.exit(1)
     
     results_file = sys.argv[1]
-    prompt = sys.argv[2] if len(sys.argv) > 2 else "AgentMail is at ClawCon, vibrant logo design, professional branding, modern tech aesthetic"
     
     # Load API key
     with open(results_file, 'r') as f:
@@ -119,9 +125,10 @@ async def main():
         print("❌ No API key found in results")
         sys.exit(1)
     
-    print(f"🚀 Single Image Generation\n")
+    print(f"🚀 ClawCon Image Generation\n")
+    print("="*60 + "\n")
     
-    output_file = await generate_single_image(api_key, prompt)
+    output_file = await generate_clawcon(api_key)
     
     if output_file:
         print(f"\n🎉 Done! Image saved to: {output_file}")
