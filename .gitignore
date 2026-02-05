@@ -66,3 +66,6 @@ Thumbs.db
 # Browser automation
 playwright-report/
 test-results/
+
+# Archive (old/test scripts)
+archive/

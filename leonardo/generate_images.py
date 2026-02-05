@@ -183,20 +183,41 @@ async def main_async(api_keys: List[str], images_per_key: int):
 
 def main():
     import sys
+    import os
     
     if len(sys.argv) < 2:
-        print("Usage: python3 leonardo_mass_generate.py <images_per_key>")
+        print("Usage: python3 leonardo_mass_generate.py <images_per_key> [api_keys_file]")
         print("Example: python3 leonardo_mass_generate.py 400")
+        print("Example: python3 leonardo_mass_generate.py 400 leonardo_parallel_results.json")
         sys.exit(1)
     
     images_per_key = int(sys.argv[1])
     
-    # Load API keys
-    api_keys = [
-        "5cd451b9-798a-472c-a66f-98aaf7cc4622",
-        "76242b26-d44a-44f6-8807-cb455162dfcb",
-        "8918c71a-a6e4-4748-9a44-43f408651adf"
-    ]
+    # Load API keys from results file or environment
+    api_keys = []
+    
+    if len(sys.argv) > 2:
+        # Load from results JSON
+        results_file = sys.argv[2]
+        with open(results_file, 'r') as f:
+            data = json.load(f)
+        api_keys = [r['api_key'] for r in data['results'] if r.get('status') == 'success' and r.get('api_key')]
+        print(f"✅ Loaded {len(api_keys)} API keys from {results_file}")
+    else:
+        # Load from environment
+        for i in range(1, 10):
+            key = os.getenv(f'LEONARDO_API_KEY_{i}') or os.getenv('LEONARDO_API_KEY')
+            if key and key not in api_keys:
+                api_keys.append(key)
+        
+        if not api_keys:
+            print("❌ No API keys found!")
+            print("\nOptions:")
+            print("  1. Pass results file: python3 leonardo/generate_images.py 400 leonardo_parallel_results.json")
+            print("  2. Set env var: export LEONARDO_API_KEY=your-key-here")
+            sys.exit(1)
+        
+        print(f"✅ Loaded {len(api_keys)} API keys from environment")
     
     results = asyncio.run(main_async(api_keys, images_per_key))
     

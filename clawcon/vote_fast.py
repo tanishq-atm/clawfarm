@@ -25,7 +25,8 @@ class FastVotingSystem:
         self.submission_id = submission_id
         self.agentmail = AgentMail(api_key=os.getenv('AGENTMAIL_API_KEY'))
         
-        # Supabase config
+        # Supabase config (public anon key from claw-con.com - safe to commit)
+        # Note: This is a PUBLIC anon key, meant to be exposed client-side
         self.supabase_url = "https://grhnmffbzheudxajicnf.supabase.co"
         self.apikey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdyaG5tZmZiemhldWR4YWppY25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwNjA1MzcsImV4cCI6MjA4NTYzNjUzN30.hj2VovmpiT7zABjwaYgVK1iJbkIgT2a8_eWYOkVxKlQ"
         
